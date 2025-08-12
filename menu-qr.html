@@ -1,0 +1,25 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>QR HTML Page</title>
+</head>
+
+<body onload="onload()">
+    <div id="qrcode"></div>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+    <script>
+
+        const baseUrl = "https://e-menu-client-ezdrg4dsc8dyeadx.canadacentral-01.azurewebsites.net"
+        const XRM = window.parent.Xrm;
+
+        function onload() {
+            const recordId = XRM.Page.data.entity.getId().replace("{", "").replace("}", "");
+            const qrUrl = `${baseUrl}/menu/${recordId}`;
+            new QRCode(document.getElementById("qrcode"), qrUrl);
+        }
+    </script>
+</body>
+</html>

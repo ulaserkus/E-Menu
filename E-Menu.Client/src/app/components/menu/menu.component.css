@@ -1,0 +1,28 @@
+.out-of-stock {
+  color: red;
+  font-weight: bold;
+}
+
+.custom-success {
+    background-color: #198754 !important; /* Bootstrap success renk kodu */
+    color: white !important;
+}
+
+.custom-success:hover {
+    background-color: #157347 !important;  /* Hover için daha koyu bir renk */
+    color: white !important;
+}
+
+.custom-active {
+    background-color:  #157347 !important; /* Active durumunda özel renk */
+    color: white !important; /* Yazı rengini beyaz yap */
+}
+
+img.card-img-top {
+    width: 100%;
+    height: 225px; 
+    object-fit: cover; 
+    object-position: center;
+    display: block;
+}
+

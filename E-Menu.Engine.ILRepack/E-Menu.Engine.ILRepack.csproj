@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<RootNamespace>E_Menu.Engine.ILRepack</RootNamespace>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>sign.snk</AssemblyOriginatorKeyFile>
+	</PropertyGroup>
+	<ItemGroup>
+	  <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.40">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\E-Menu.Engine.Standart\E-Menu.Engine.Standart.csproj" />
+	</ItemGroup>
+
+
+	<Target Name="RunILRepack" AfterTargets="Build" Condition="true">
+		<ItemGroup>
+			<InputAssemblies Include="$(OutputPath)$(AssemblyName).dll" />
+			<InputAssemblies Include="$(OutputPath)Shared.Kernel.Standart.dll" />
+			<InputAssemblies Include="$(OutputPath)E-Menu.Logging.dll" />
+			<InputAssemblies Include="$(OutputPath)E-Menu.Engine.Standart.dll" />
+		</ItemGroup>
+		<ILRepack OutputFile="$(OutputPath)merged\$(AssemblyName).dll" InputAssemblies="@(InputAssemblies)" Internalize="false" TargetKind="Library" Verbose="true" KeyFile="$(AssemblyOriginatorKeyFile)" />
+	</Target>
+
+</Project>
