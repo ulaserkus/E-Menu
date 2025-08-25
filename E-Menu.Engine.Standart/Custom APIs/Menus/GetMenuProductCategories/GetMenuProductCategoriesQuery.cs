@@ -1,5 +1,7 @@
 ﻿using E_Menu.Engine.Abstractions;
 using E_Menu.Engine.Attributes;
+using FluentDynamics.QueryBuilder;
+using FluentDynamics.QueryBuilder.Extensions;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Shared.Kernel.Constants;
@@ -18,52 +20,26 @@ namespace E_Menu.Engine.Custom_APIs.Menus.GetMenuProductCategories
     {
         protected override QueryExpression CreateQueryExpression()
         {
-            var query = new QueryExpression(EntityLogicalNames.ProductCategory)
-            {
-                NoLock = true,
-                Distinct = true,
-                ColumnSet = new ColumnSet(ProductCategoryAttributes.Id, ProductCategoryAttributes.Name),
-                Criteria = new FilterExpression
+            var fluentQuery = Query.For(EntityLogicalNames.ProductCategory)
+                .Select(ProductCategoryAttributes.Id, ProductCategoryAttributes.Name)
+                .Where(f =>
                 {
-                    Conditions =
-                    {
-                        new ConditionExpression(ProductCategoryAttributes.StateCode, ConditionOperator.Equal,CrmCustomEntityStateCodes.Active)
-                    }
-                },
-                LinkEntities =
+                    f.Equal(ProductCategoryAttributes.StateCode, CrmCustomEntityStateCodes.Active);
+                })
+                .InnerJoin(EntityLogicalNames.MenuProduct, ProductCategoryAttributes.Id, MenuProductAttributes.ProductCategoryId, join =>
                 {
-                    new LinkEntity(
-                       EntityLogicalNames.ProductCategory,
-                       EntityLogicalNames.MenuProduct,
-                       ProductCategoryAttributes.Id,
-                       MenuProductAttributes.ProductCategoryId,
-                        JoinOperator.Inner)
+                    join.InnerJoin(EntityLogicalNames.MenuItem, MenuProductAttributes.Id, MenuItemAttributes.MenuProductId, join2 =>
                     {
-                        EntityAlias = EntityAliases.MenuProduct,
-                        LinkEntities =
+                        join2.Where(f2 =>
                         {
-                            new LinkEntity(
-                                EntityLogicalNames.MenuProduct,
-                                EntityLogicalNames.MenuItem,
-                                MenuProductAttributes.Id,
-                                MenuItemAttributes.MenuProductId,
-                                JoinOperator.Inner)
-                            {
-                                EntityAlias = EntityAliases.MenuItem,
-                                LinkCriteria =
-                                {
-                                    Conditions =
-                                    {
-                                        new ConditionExpression(MenuItemAttributes.MenuId, ConditionOperator.Equal, Request.MenuId)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            };
+                            f2.Equal(MenuItemAttributes.MenuId, Request.MenuId);
+                        }).As(EntityAliases.MenuItem);
 
-            return query;
+                    }).As(EntityAliases.MenuProduct);
+                })
+                .NoLock();
+
+            return fluentQuery.ToQueryExpression();
         }
 
         protected override IEnumerable<ProductCategoryDto> Map()
