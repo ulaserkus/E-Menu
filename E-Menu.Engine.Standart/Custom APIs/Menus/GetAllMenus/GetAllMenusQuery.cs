@@ -1,5 +1,7 @@
 ﻿using E_Menu.Engine.Abstractions;
 using E_Menu.Engine.Attributes;
+using FluentDynamics.QueryBuilder;
+using FluentDynamics.QueryBuilder.Extensions;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Shared.Kernel.Constants;
@@ -20,19 +22,16 @@ namespace E_Menu.Engine.Custom_APIs.Menus.GetAllMenus
         public GetAllMenusQuery() { }
         protected override QueryExpression CreateQueryExpression()
         {
-            var query = new QueryExpression(EntityLogicalNames.Menu)
-            {
-                ColumnSet = new ColumnSet(MenuAttributes.Name, MenuAttributes.Code, MenuAttributes.TransactionCurrencyId, MenuAttributes.Description),
-                Criteria = new FilterExpression
-                {
-                    Conditions =
-                    {
-                        new ConditionExpression(MenuAttributes.StateCode, ConditionOperator.Equal, CrmCustomEntityStateCodes.Active)
-                    }
-                }
-            };
+            var fluentQuery = Query.For(EntityLogicalNames.Menu)
+                .Select(
+                    MenuAttributes.Name,
+                    MenuAttributes.Code,
+                    MenuAttributes.TransactionCurrencyId,
+                    MenuAttributes.Description
+                ).Where(f => f.Equal(MenuAttributes.StateCode, CrmCustomEntityStateCodes.Active));
 
-            return query;
+
+            return fluentQuery.ToQueryExpression();
         }
 
         protected override IEnumerable<MenuDto> Map()
